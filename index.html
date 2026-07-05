@@ -82,7 +82,7 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        input[type="file"], input[type="number"], select, button {
+        input[type="file"], input[type="number"], input[type="range"], select, button {
             padding: 8px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
@@ -234,6 +234,21 @@
                 <option value="chebyshev">10. Chebyshev (Max RGB Difference)</option>
             </select>
         </div>
+        
+        <div class="control-group" style="flex: 1.5;">
+            <label for="outlineMode">Black Outline Mode</label>
+            <select id="outlineMode">
+                <option value="none" selected>None (Standard Color Match)</option>
+                <option value="spatial">1. Outer Sprite Border (Spatial)</option>
+                <option value="sobel">2. Internal Edge Detection (Sobel)</option>
+                <option value="luminance">3. Dark Tone Bias (Luminance)</option>
+            </select>
+        </div>
+        <div class="control-group" style="flex: 1;">
+            <label id="thresholdLabel" for="outlineThreshold">Sensitivity (N/A)</label>
+            <input type="range" id="outlineThreshold" min="0" max="255" value="50" disabled style="padding: 4px 0;">
+        </div>
+
         <div class="control-group" style="flex: 0.5;">
             <label for="scalePercent">Scale (%)</label>
             <input type="number" id="scalePercent" value="100" min="10" max="500">
@@ -281,7 +296,7 @@
 
     <script>
         const beadPalette = [
-            // A Series: Yellows & Oranges 
+            // A Series: Yellows & Oranges
             {code: 'A1', hex: '#FAF4C8'}, {code: 'A2', hex: '#FFFFD5'}, {code: 'A3', hex: '#FEFF8B'}, {code: 'A4', hex: '#FBED56'}, 
             {code: 'A5', hex: '#F4D738'}, {code: 'A6', hex: '#FEAC4C'}, {code: 'A7', hex: '#FE8B4C'}, {code: 'A8', hex: '#FFDA45'},
             {code: 'A9', hex: '#FF995B'}, {code: 'A10', hex: '#F77C31'}, {code: 'A11', hex: '#FFDD99'}, {code: 'A12', hex: '#FE9F72'},
@@ -540,6 +555,11 @@
         const gridWidthInput = document.getElementById('gridWidth');
         const gridHeightInput = document.getElementById('gridHeight');
         
+        // Dynamic Outline Element Logic Handlers
+        const outlineModeSelect = document.getElementById('outlineMode');
+        const outlineThresholdInput = document.getElementById('outlineThreshold');
+        const thresholdLabel = document.getElementById('thresholdLabel');
+
         const ctx = outputCanvas.getContext('2d');
         const baseCtx = baseCanvas.getContext('2d');
         const fusedCtx = fusedCanvas.getContext('2d');
@@ -551,6 +571,36 @@
         // Dark Mode Logic
         darkModeToggle.addEventListener('change', (e) => {
             document.body.classList.toggle('dark-mode', e.target.checked);
+        });
+
+        // Dynamic Labeling logic for the new Outline/Sensitivity configuration
+        outlineModeSelect.addEventListener('change', () => {
+            const mode = outlineModeSelect.value;
+            if (mode === 'none' || mode === 'spatial') {
+                outlineThresholdInput.disabled = true;
+                thresholdLabel.innerText = "Sensitivity (N/A)";
+            } else if (mode === 'sobel') {
+                outlineThresholdInput.disabled = false;
+                outlineThresholdInput.min = "10";
+                outlineThresholdInput.max = "200";
+                outlineThresholdInput.value = "50";
+                thresholdLabel.innerText = `Edge Cutoff (${outlineThresholdInput.value})`;
+            } else if (mode === 'luminance') {
+                outlineThresholdInput.disabled = false;
+                outlineThresholdInput.min = "0";
+                outlineThresholdInput.max = "255";
+                outlineThresholdInput.value = "60";
+                thresholdLabel.innerText = `Darkness Bias (${outlineThresholdInput.value})`;
+            }
+        });
+
+        outlineThresholdInput.addEventListener('input', (e) => {
+            const mode = outlineModeSelect.value;
+            if (mode === 'sobel') {
+                thresholdLabel.innerText = `Edge Cutoff (${e.target.value})`;
+            } else if (mode === 'luminance') {
+                thresholdLabel.innerText = `Darkness Bias (${e.target.value})`;
+            }
         });
 
         // Percentage Scaling Logic
@@ -645,6 +695,8 @@
             const gridW = parseInt(gridWidthInput.value);
             const gridH = parseInt(gridHeightInput.value);
             const selectedAlgo = document.getElementById('colorAlgo').value;
+            const activeOutlineMode = outlineModeSelect.value;
+            const currentThreshold = parseFloat(outlineThresholdInput.value);
 
             const cellSize = 24; 
             const axisOffset = 30; 
@@ -666,7 +718,57 @@
             tempCtx.drawImage(croppedImageData, 0, 0, gridW, gridH);
             const imgData = tempCtx.getImageData(0, 0, gridW, gridH).data;
 
-            // Note: Keeping background generation explicitly white, preserving pattern readability on dark mode
+            // Pre-calculate Edge Maps for Spatial or Edge detection modes
+            let edgeMap = Array(gridH).fill().map(() => Array(gridW).fill(false));
+            
+            // Mode 1: Spatial/Sprite Border Calculation
+            if (activeOutlineMode === 'spatial') {
+                const getAlpha = (px, py) => {
+                    if (px < 0 || px >= gridW || py < 0 || py >= gridH) return 0;
+                    return imgData[(py * gridW + px) * 4 + 3];
+                };
+                for (let y = 0; y < gridH; y++) {
+                    for (let x = 0; x < gridW; x++) {
+                        if (getAlpha(x, y) >= 128) {
+                            if (getAlpha(x-1, y) < 128 || getAlpha(x+1, y) < 128 || 
+                                getAlpha(x, y-1) < 128 || getAlpha(x, y+1) < 128) {
+                                edgeMap[y][x] = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Mode 2: Computer Vision Sobel Convolution Filter Calculation
+            if (activeOutlineMode === 'sobel') {
+                const getLuma = (px, py) => {
+                    const cx = Math.max(0, Math.min(gridW - 1, px));
+                    const cy = Math.max(0, Math.min(gridH - 1, py));
+                    const idx = (cy * gridW + cx) * 4;
+                    // Check opacity - if transparent, treat it as full canvas background luminosity (white)
+                    if (imgData[idx + 3] < 128) return 255;
+                    return (imgData[idx] * 0.299 + imgData[idx+1] * 0.587 + imgData[idx+2] * 0.114);
+                };
+                for (let y = 0; y < gridH; y++) {
+                    for (let x = 0; x < gridW; x++) {
+                        const gx = 
+                            -1*getLuma(x-1, y-1) + 1*getLuma(x+1, y-1) +
+                            -2*getLuma(x-1, y)   + 2*getLuma(x+1, y) +
+                            -1*getLuma(x-1, y+1) + 1*getLuma(x+1, y+1);
+                        const gy = 
+                            -1*getLuma(x-1, y-1) - 2*getLuma(x, y-1) - 1*getLuma(x+1, y-1) +
+                            1*getLuma(x-1, y+1) + 2*getLuma(x, y+1) + 1*getLuma(x+1, y+1);
+                        const magnitude = Math.sqrt(gx*gx + gy*gy);
+                        if (magnitude > currentThreshold) {
+                            edgeMap[y][x] = true;
+                        }
+                    }
+                }
+            }
+
+            // Target black color reference (H7) from your palette data
+            const blackBeadColor = paletteData.find(color => color.code === 'H7') || paletteData[0];
+
             [ctx, baseCtx].forEach(context => {
                 context.fillStyle = '#ffffff';
                 context.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
@@ -712,7 +814,18 @@
                         continue;
                     }
 
-                    const matchedColor = findClosestColor(r, g, b, selectedAlgo);
+                    let matchedColor;
+
+                    // Execute corresponding outline routing rules
+                    if ((activeOutlineMode === 'spatial' || activeOutlineMode === 'sobel') && edgeMap[y][x]) {
+                        matchedColor = blackBeadColor;
+                    } else if (activeOutlineMode === 'luminance' && (0.299*r + 0.587*g + 0.114*b) < currentThreshold) {
+                        // Mode 3: Luminance threshold logic override 
+                        matchedColor = blackBeadColor;
+                    } else {
+                        // Standard matching fallback
+                        matchedColor = findClosestColor(r, g, b, selectedAlgo);
+                    }
                     
                     if (!beadCounts[matchedColor.code]) {
                         beadCounts[matchedColor.code] = {
