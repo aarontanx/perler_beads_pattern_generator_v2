@@ -6,32 +6,39 @@
     <title>Perler Bead Pattern Generator Pro</title>
     <style>
         :root {
-            --bg-color: #f4f4f9;
+            --bg-color: #f0f2f5;
             --container-bg: #ffffff;
-            --text-color: #333;
-            --border-color: #ccc;
+            --text-color: #1a1a1a;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
             --input-bg: #ffffff;
             --table-head-bg: #f8f9fa;
+            --accent-color: #007bff;
+            --accent-hover: #0056b3;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
         body.dark-mode {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #f4f4f9;
-            --border-color: #444;
-            --input-bg: #2c2c2c;
-            --table-head-bg: #2a2a2a;
+            --bg-color: #0f111a;
+            --container-bg: #161b22;
+            --text-color: #c9d1d9;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --input-bg: #0d1117;
+            --table-head-bg: #21262d;
+            --accent-color: #58a6ff;
+            --accent-hover: #1f6feb;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             transition: background-color 0.3s, color 0.3s;
         }
         
@@ -40,160 +47,254 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .dark-mode-toggle {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
+            user-select: none;
         }
 
-        .controls {
-            background-color: var(--container-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 1000px;
+        /* Dashboard Core Layout */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
             width: 100%;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
-            transition: background-color 0.3s;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: start;
         }
+
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Panels */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .control-card {
+            background-color: var(--container-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .control-card h3 {
+            margin: 0 0 14px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
         .control-group {
             display: flex;
             flex-direction: column;
-            flex: 1;
-            min-width: 140px;
+            margin-bottom: 12px;
         }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
         .checkbox-group {
-            flex-direction: row;
+            display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 8px;
         }
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
+
+        .row-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
         input[type="file"], input[type="number"], input[type="range"], select, button {
-            padding: 8px;
+            padding: 10px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             background-color: var(--input-bg);
             color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            outline: none;
+            transition: all 0.2s ease;
         }
+
+        input[type="file"] {
+            font-size: 12px;
+        }
+
+        /* Thumbnails Container */
+        #thumbPreviewContainer {
+            margin-top: 12px;
+            text-align: center;
+            background: rgba(0,0,0,0.03);
+            border-radius: 6px;
+            padding: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        #thumbPreview {
+            max-width: 100%;
+            max-height: 140px;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Primary Action Buttons */
         button {
-            background-color: #007bff;
+            background-color: var(--accent-color);
             color: white;
             border: none;
             cursor: pointer;
-            font-weight: bold;
-            height: 36px;
-            padding: 0 15px;
+            font-weight: 600;
+            width: 100%;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--accent-hover);
         }
+
         .download-group {
             display: flex;
-            gap: 5px;
-            align-items: stretch;
-            flex: 2;
-            min-width: 250px;
+            flex-direction: column;
+            gap: 8px;
         }
-        .download-group select {
-            flex: 1;
-        }
+
         #downloadBtn {
-            background-color: #28a745;
-            margin-top: 0;
+            background-color: var(--success-color);
         }
+
         #downloadBtn:hover {
-            background-color: #218838;
+            background-color: var(--success-hover);
         }
+
         #downloadBtn:disabled {
-            background-color: #6c757d;
+            background-color: var(--border-color);
+            color: var(--text-muted);
             cursor: not-allowed;
+            box-shadow: none;
         }
-        .canvas-wrapper {
+
+        /* Main Panel & Output Canvas Layout Grid */
+        .main-panel {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 24px;
+        }
+
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
             width: 100%;
         }
+
         .canvas-container {
-            width: 100%;
-            max-width: 800px;
             background-color: var(--container-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: background-color 0.3s;
         }
+
         .canvas-container h2 {
-            margin-top: 0;
-            font-size: 18px;
+            margin: 0 0 14px 0;
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text-color);
-            text-align: center;
+            align-self: flex-start;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 8px;
         }
+
         canvas {
             display: block;
-            background: #fff;
+            background: #ffffff;
             max-width: 100%;
             height: auto;
-            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
         }
+
+        /* Data Matrix Table Styling */
         .table-container {
-            width: 100%;
-            max-width: 800px;
             background-color: var(--container-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            transition: background-color 0.3s;
         }
+
         .table-container h2 {
-            margin-top: 0;
-            font-size: 18px;
-            color: var(--text-color);
-            text-align: center;
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 600;
+            border-left: 3px solid var(--success-color);
+            padding-left: 8px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
+
         th, td {
             border: 1px solid var(--border-color);
-            padding: 10px;
+            padding: 12px;
             text-align: left;
+            font-size: 14px;
         }
+
         th {
             background-color: var(--table-head-bg);
-            transition: background-color 0.3s;
+            font-weight: 600;
         }
+
         .color-swatch {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 1px solid #000;
+            width: 24px;
+            height: 24px;
+            border: 1px solid rgba(0,0,0,0.15);
             vertical-align: middle;
             margin-right: 10px;
             border-radius: 4px;
@@ -203,95 +304,145 @@
 <body>
 
     <div class="header-container">
-        <h1>Perler Bead Pattern Generator</h1>
+        <h1>Perler Bead Pattern Generator Pro</h1>
         <label class="dark-mode-toggle">
             <input type="checkbox" id="darkModeToggle">
             Dark Mode
         </label>
     </div>
 
-    <div class="controls">
-        <div class="control-group" style="flex: 2; min-width: 200px;">
-            <label for="imageUpload">Upload Image</label>
-            <div class="checkbox-group">
-                <input type="checkbox" id="autoCrop" checked>
-                <label for="autoCrop" style="margin: 0; font-weight: normal;">Auto-Crop White Space</label>
-            </div>
-            <input type="file" id="imageUpload" accept="image/*">
-        </div>
-        <div class="control-group" style="flex: 1.5;">
-            <label for="colorAlgo">Color Matching Algorithm</label>
-            <select id="colorAlgo">
-                <option value="redmean">1. Redmean (Perceptual Balance)</option>
-                <option value="cielab76" selected>2. CIE76 (Pro Visual Perception)</option>
-                <option value="euclidean">3. Euclidean (True RGB)</option>
-                <option value="weighted_rgb">4. Weighted RGB (Classic Luminescence)</option>
-                <option value="luma">5. Luma (YIQ Contrast)</option>
-                <option value="hsv">6. HSV Space (Prioritizes Hue)</option>
-                <option value="hsl">7. HSL Space (Prioritizes Lightness/Hue)</option>
-                <option value="cmyk">8. CMYK Space (Physical Dye Matching)</option>
-                <option value="manhattan">9. Manhattan (Taxicab RGB)</option>
-                <option value="chebyshev">10. Chebyshev (Max RGB Difference)</option>
-            </select>
-        </div>
+    <div class="dashboard-layout">
         
-        <div class="control-group" style="flex: 1.5;">
-            <label for="outlineMode">Black Outline Mode</label>
-            <select id="outlineMode">
-                <option value="none" selected>None (Standard Color Match)</option>
-                <option value="spatial">1. Outer Sprite Border (Spatial)</option>
-                <option value="sobel">2. Internal Edge Detection (Sobel)</option>
-                <option value="luminance">3. Dark Tone Bias (Luminance)</option>
-            </select>
-        </div>
-        <div class="control-group" style="flex: 1;">
-            <label id="thresholdLabel" for="outlineThreshold">Sensitivity (N/A)</label>
-            <input type="range" id="outlineThreshold" min="0" max="255" value="50" disabled style="padding: 4px 0;">
-        </div>
+        <!-- SIDEBAR CONTROLS COLLAPSED SECTIONS -->
+        <aside class="sidebar">
+            
+            <!-- SECTION 1: SOURCE -->
+            <div class="control-card">
+                <h3>1. Image Source</h3>
+                <div class="control-group">
+                    <label for="imageUpload">Upload Matrix Asset</label>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </div>
+                <div class="control-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="autoCrop" checked>
+                        <label for="autoCrop" style="margin: 0; font-weight: normal;">Auto-Crop White Space</label>
+                    </div>
+                </div>
+                <div id="thumbPreviewContainer" style="display: none;">
+                    <label style="display:block; margin-bottom:4px; font-size:11px; color:var(--text-muted);">Source File Preview</label>
+                    <img id="thumbPreview" alt="Asset Thumbnail">
+                </div>
+            </div>
 
-        <div class="control-group" style="flex: 0.5;">
-            <label for="scalePercent">Scale (%)</label>
-            <input type="number" id="scalePercent" value="100" min="10" max="500">
-        </div>
-        <div class="control-group" style="flex: 0.5;">
-            <label for="gridWidth">Width</label>
-            <input type="number" id="gridWidth" value="30" min="5" max="200">
-        </div>
-        <div class="control-group" style="flex: 0.5;">
-            <label for="gridHeight">Height</label>
-            <input type="number" id="gridHeight" value="30" min="5" max="200">
-        </div>
-        <div class="control-group">
-            <button id="generateBtn">Generate Pattern</button>
-        </div>
-        <div class="control-group download-group">
-            <select id="dlType">
-                <option value="blueprint">Download Blueprint (With Codes)</option>
-                <option value="base">Download Base Grid (No Codes)</option>
-                <option value="fused">Download Fused Preview</option>
-            </select>
-            <button id="downloadBtn" disabled>Download</button>
-        </div>
-    </div>
+            <!-- SECTION 2: DIMENSIONS -->
+            <div class="control-card">
+                <h3>2. Grid Geometry</h3>
+                <div class="row-group">
+                    <div class="control-group">
+                        <label for="scalePercent">Scale (%)</label>
+                        <input type="number" id="scalePercent" value="100" min="10" max="500">
+                    </div>
+                    <div class="control-group">
+                        <label for="gridWidth">Width</label>
+                        <input type="number" id="gridWidth" value="30" min="5" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label for="gridHeight">Height</label>
+                        <input type="number" id="gridHeight" value="30" min="5" max="200">
+                    </div>
+                </div>
+            </div>
 
-    <div class="canvas-wrapper">
-        <div class="canvas-container">
-            <h2>Base Grid (No Codes)</h2>
-            <canvas id="baseCanvas"></canvas>
-        </div>
-        <div class="canvas-container">
-            <h2>Blueprint Guide (Codes)</h2>
-            <canvas id="outputCanvas"></canvas>
-        </div>
-        <div class="canvas-container">
-            <h2>Fused Simulation</h2>
-            <canvas id="fusedCanvas"></canvas>
-        </div>
-    </div>
+            <!-- SECTION 3: RENDER PROCESSING ENGINE -->
+            <div class="control-card">
+                <h3>3. Color Quantization</h3>
+                <div class="control-group">
+                    <label for="processingMode">Processing Mode</label>
+                    <select id="processingMode">
+                        <option value="pixel" selected>👾 Pixel Art (Sharp Grid)</option>
+                        <option value="photo">📸 Photo / Gradient (Smooth)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="colorAlgo">Matching Algorithm</label>
+                    <select id="colorAlgo">
+                        <option value="redmean">1. Redmean (Perceptual Balance)</option>
+                        <option value="cielab76" selected>2. CIE76 (Pro Visual Perception)</option>
+                        <option value="euclidean">3. Euclidean (True RGB)</option>
+                        <option value="weighted_rgb">4. Weighted RGB (Classic Luminescence)</option>
+                        <option value="luma">5. Luma (YIQ Contrast)</option>
+                        <option value="hsv">6. HSV Space (Prioritizes Hue)</option>
+                        <option value="hsl">7. HSL Space (Prioritizes Lightness/Hue)</option>
+                        <option value="cmyk">8. CMYK Space (Physical Dye Matching)</option>
+                        <option value="manhattan">9. Manhattan (Taxicab RGB)</option>
+                        <option value="chebyshev">10. Chebyshev (Max RGB Difference)</option>
+                    </select>
+                </div>
+            </div>
 
-    <div class="table-container" id="beadTableContainer" style="display: none;">
-        <h2>Required Bead Quantities</h2>
-        <div id="beadTableContent" style="width: 100%;"></div>
+            <!-- SECTION 4: EDGE CONTROLS -->
+            <div class="control-card">
+                <h3>4. Outline Processing</h3>
+                <div class="control-group">
+                    <label for="outlineMode">Black Outline Mode</label>
+                    <select id="outlineMode">
+                        <option value="none" selected>None (Standard Color Match)</option>
+                        <option value="spatial">1. Outer Sprite Border (Spatial)</option>
+                        <option value="sobel">2. Internal Edge Detection (Sobel)</option>
+                        <option value="luminance">3. Dark Tone Bias (Luminance)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label id="thresholdLabel" for="outlineThreshold">Sensitivity (N/A)</label>
+                    <input type="range" id="outlineThreshold" min="0" max="255" value="50" disabled style="padding: 4px 0;">
+                </div>
+            </div>
+
+            <!-- SECTION 5: OUTPUT ACTIONS -->
+            <div class="control-card">
+                <h3>5. Execution & Export</h3>
+                <div class="control-group" style="margin-bottom: 14px;">
+                    <button id="generateBtn">Generate Pattern</button>
+                </div>
+                <div class="control-group download-group">
+                    <label for="dlType">Export Format Target</label>
+                    <select id="dlType">
+                        <option value="blueprint">Download Blueprint (With Codes)</option>
+                        <option value="base">Download Base Grid (No Codes)</option>
+                        <option value="fused">Download Fused Preview</option>
+                    </select>
+                    <button id="downloadBtn" disabled>Download Image Asset</button>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- MAIN PANEL PREVIEW MATRICES -->
+        <main class="main-panel">
+            
+            <div class="canvas-grid">
+                <div class="canvas-container">
+                    <h2>Base Grid (No Codes)</h2>
+                    <canvas id="baseCanvas"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <h2>Blueprint Guide (Codes)</h2>
+                    <canvas id="outputCanvas"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <h2>Fused Simulation</h2>
+                    <canvas id="fusedCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container" id="beadTableContainer" style="display: none;">
+                <h2>Required Bead Quantities</h2>
+                <div id="beadTableContent" style="width: 100%;"></div>
+            </div>
+
+        </main>
+
     </div>
 
     <script>
@@ -464,7 +615,7 @@
             };
         });
 
-        function findClosestColor(r, g, b, algorithm) {
+        function findClosestColor(r, g, b, algorithm, restrictToGrey = false) {
             let minDistance = Infinity;
             let closestColor = paletteData[0];
             
@@ -476,6 +627,11 @@
 
             for (let i = 0; i < paletteData.length; i++) {
                 const color = paletteData[i];
+
+                if (restrictToGrey && !color.code.startsWith('H')) {
+                    continue;
+                }
+
                 const dR = r - color.rgb.r;
                 const dG = g - color.rgb.g;
                 const dB = b - color.rgb.b;
@@ -554,8 +710,8 @@
         const scalePercentInput = document.getElementById('scalePercent');
         const gridWidthInput = document.getElementById('gridWidth');
         const gridHeightInput = document.getElementById('gridHeight');
+        const processingModeSelect = document.getElementById('processingMode');
         
-        // Dynamic Outline Element Logic Handlers
         const outlineModeSelect = document.getElementById('outlineMode');
         const outlineThresholdInput = document.getElementById('outlineThreshold');
         const thresholdLabel = document.getElementById('thresholdLabel');
@@ -573,7 +729,6 @@
             document.body.classList.toggle('dark-mode', e.target.checked);
         });
 
-        // Dynamic Labeling logic for the new Outline/Sensitivity configuration
         outlineModeSelect.addEventListener('change', () => {
             const mode = outlineModeSelect.value;
             if (mode === 'none' || mode === 'spatial') {
@@ -603,7 +758,6 @@
             }
         });
 
-        // Percentage Scaling Logic
         scalePercentInput.addEventListener('input', (e) => {
             const scale = parseFloat(e.target.value) / 100;
             if (scale > 0 && croppedImageData) {
@@ -618,6 +772,11 @@
 
             const reader = new FileReader();
             reader.onload = (event) => {
+                // Asset thumbnail rendering configuration
+                const thumbImg = document.getElementById('thumbPreview');
+                thumbImg.src = event.target.result;
+                document.getElementById('thumbPreviewContainer').style.display = 'block';
+
                 const img = new Image();
                 img.onload = () => {
                     const tempCanvas = document.createElement('canvas');
@@ -673,7 +832,6 @@
                         targetW = Math.max(5, Math.round((croppedWidth / croppedHeight) * maxSize));
                     }
 
-                    // Save initial base calculation to establish the 100% scale
                     initialBaseW = targetW;
                     initialBaseH = targetH;
                     scalePercentInput.value = 100;
@@ -697,6 +855,7 @@
             const selectedAlgo = document.getElementById('colorAlgo').value;
             const activeOutlineMode = outlineModeSelect.value;
             const currentThreshold = parseFloat(outlineThresholdInput.value);
+            const isPixelMode = processingModeSelect.value === 'pixel';
 
             const cellSize = 24; 
             const axisOffset = 30; 
@@ -715,13 +874,16 @@
             tempCanvas.height = gridH;
             const tempCtx = tempCanvas.getContext('2d');
             
+            tempCtx.imageSmoothingEnabled = !isPixelMode;
+            if ('mozImageSmoothingEnabled' in tempCtx) tempCtx.mozImageSmoothingEnabled = !isPixelMode;
+            if ('webkitImageSmoothingEnabled' in tempCtx) tempCtx.webkitImageSmoothingEnabled = !isPixelMode;
+            if ('msImageSmoothingEnabled' in tempCtx) tempCtx.msImageSmoothingEnabled = !isPixelMode;
+            
             tempCtx.drawImage(croppedImageData, 0, 0, gridW, gridH);
             const imgData = tempCtx.getImageData(0, 0, gridW, gridH).data;
 
-            // Pre-calculate Edge Maps for Spatial or Edge detection modes
             let edgeMap = Array(gridH).fill().map(() => Array(gridW).fill(false));
             
-            // Mode 1: Spatial/Sprite Border Calculation
             if (activeOutlineMode === 'spatial') {
                 const getAlpha = (px, py) => {
                     if (px < 0 || px >= gridW || py < 0 || py >= gridH) return 0;
@@ -739,13 +901,11 @@
                 }
             }
 
-            // Mode 2: Computer Vision Sobel Convolution Filter Calculation
             if (activeOutlineMode === 'sobel') {
                 const getLuma = (px, py) => {
                     const cx = Math.max(0, Math.min(gridW - 1, px));
                     const cy = Math.max(0, Math.min(gridH - 1, py));
                     const idx = (cy * gridW + cx) * 4;
-                    // Check opacity - if transparent, treat it as full canvas background luminosity (white)
                     if (imgData[idx + 3] < 128) return 255;
                     return (imgData[idx] * 0.299 + imgData[idx+1] * 0.587 + imgData[idx+2] * 0.114);
                 };
@@ -766,7 +926,6 @@
                 }
             }
 
-            // Target black color reference (H7) from your palette data
             const blackBeadColor = paletteData.find(color => color.code === 'H7') || paletteData[0];
 
             [ctx, baseCtx].forEach(context => {
@@ -816,15 +975,20 @@
 
                     let matchedColor;
 
-                    // Execute corresponding outline routing rules
                     if ((activeOutlineMode === 'spatial' || activeOutlineMode === 'sobel') && edgeMap[y][x]) {
                         matchedColor = blackBeadColor;
                     } else if (activeOutlineMode === 'luminance' && (0.299*r + 0.587*g + 0.114*b) < currentThreshold) {
-                        // Mode 3: Luminance threshold logic override 
                         matchedColor = blackBeadColor;
                     } else {
-                        // Standard matching fallback
-                        matchedColor = findClosestColor(r, g, b, selectedAlgo);
+                        if (r < 35 && g < 35 && b < 35) {
+                            matchedColor = blackBeadColor;
+                        } else {
+                            const maxVal = Math.max(r, g, b);
+                            const minVal = Math.min(r, g, b);
+                            const saturationSpread = maxVal - minVal;
+                            const restrictToGrey = (saturationSpread < 18);
+                            matchedColor = findClosestColor(r, g, b, selectedAlgo, restrictToGrey);
+                        }
                     }
                     
                     if (!beadCounts[matchedColor.code]) {
@@ -971,7 +1135,7 @@
 
             const link = document.createElement('a');
             link.download = `perler-${dlType}.png`;
-            link.href = targetCanvas.toDataURL('image/png');
+            link.href = targetCanvas.toDataURL ? targetCanvas.toDataURL('image/png') : targetCanvas.toDataURL();
             link.click();
         });
     </script>
